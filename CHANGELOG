@@ -2,6 +2,13 @@
 Changelog
 =========
 
+
+3.0.0
+------
+
+ - Added support to Tornado and aiohttp clients.
+ - Supports only Python 3.7+
+
 2.1.2
 -----
 

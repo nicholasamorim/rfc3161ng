@@ -12,15 +12,15 @@ Run tests::
 
     $ tox -r
 
-Change version numbers in `setup.py` and `rfc3161ng/__init__.py`::
+Change version numbers in `setup.py` and `rfc3161ng_async/__init__.py`::
 
     $ vi setup.py
-    $ vi rfc3161ng/__init__.py
-    $ git commit -m 'v2.0.0' setup.py rfc3161ng/__init__.py
+    $ vi rfc3161ng_async/__init__.py
+    $ git commit -m 'v3.0.0' setup.py rfc3161ng_async/__init__.py
 
 Tag it:
 
-    $ git tag 2.0.0
+    $ git tag 3.0.0
 
 Remove old build directory (if exists)::
 
@@ -37,8 +37,8 @@ Upload release to pypi::
 Bumb version number to new in-development pre version::
 
     $ vi setup.py
-    $ vi rfc3161ng/__init__.py
-    $ git commit -m 'bumped version number' setup.py rfc3161ng/__init__.py
+    $ vi rfc3161ng_async/__init__.py
+    $ git commit -m 'bumped version number' setup.py rfc3161ng_async/__init__.py
 
 Push changes back to github::
 

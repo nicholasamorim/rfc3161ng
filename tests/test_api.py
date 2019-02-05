@@ -7,7 +7,8 @@ from tempfile import NamedTemporaryFile
 # from pyasn1.type import univ
 from pyasn1.codec.der import encoder
 
-import rfc3161ng
+import rfc3161ng_async
+rfc3161ng = rfc3161ng_async
 
 
 def _default_test(tsa_server, certificate, username=None, password=None, data='xx', nonce=None, **kwargs):

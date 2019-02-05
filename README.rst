@@ -1,5 +1,5 @@
 =========
-rfc3161ng
+rfc3161ng_async (aiohttp / tornado)
 =========
 
 .. image:: https://img.shields.io/pypi/l/rfc3161ng.svg
@@ -17,14 +17,13 @@ rfc3161ng
     :target: https://pypi.python.org/pypi/rfc3161ng/
     :alt: Supports Wheel format
 
-A simple client library for cryptographic timestamping service implementing the
-protocol from RFC3161.
+A simple client library for cryptographic timestamping service implementing the protocol from RFC3161 using async code.
 
-This started as a fork of https://dev.entrouvert.org/projects/python-rfc3161 and
-has some additional patches such as Python3 support.
+This started as a fork of https://github.com/trbs/rfc3161ng and
+is compatible only with Python 3.7+. This library includes support for aiohttp and `tornado <https://www.tornadoweb.org/en/stable/>`__ and `aiohttp <https://aiohttp.readthedocs.io/en/stable/>`__.
 
 The latest version of this library is available from
-https://github.com/trbs/rfc3161ng/ .
+https://github.com/nicholasamorim/rfc3161ng/ .
 
 
 Public providers
@@ -45,8 +44,9 @@ Example
 =======
 
     >>> import rfc3161ng
+    >>> rfc3161.api.HTTP_CLIENT = 'tornado'
     >>> certificate = open('data/certum_certificate.crt', 'rb').read()
-    >>> rt = rfc3161ng.RemoteTimestamper('http://time.certum.pl', certificate=certificate)
+    >>> rt = yield rfc3161ng.RemoteTimestamper('http://time.certum.pl', certificate=certificate)
     >>> tst = rt.timestamp(data=b'John Doe')
     >>> rt.check(tst, data=b'John Doe')
     True
@@ -67,7 +67,7 @@ To save the tsr you can use code similar to:
     >>> from pyasn1.codec.der import encoder
     >>> import rfc3161ng
     >>> ...
-    >>> timestamper = rfc3161ng.RemoteTimestamper('http://freetsa.org/tsr', certificate=certificate_data)
+    >>> timestamper = yield rfc3161ng.RemoteTimestamper('http://freetsa.org/tsr', certificate=certificate_data)
     >>> tsr = timestamper(data=data_file.read(), return_tsr=True)
     >>> with open("data_file.tsr", "wb") as f:
     >>>     f.write(encoder.encode(tsr))
@@ -80,6 +80,7 @@ There is a test which also covers this in `test_verify_timestamp_response_with_o
 Authors
 =======
 
+ * Nicholas Amorim <nicholas@alienretro.com>
  * Benjamin Dauvergne <bdauvergne@entrouvert.com>
  * Michael Gebetsroither <michael@mgeb.org>
  * Bas van Oostveen <trbs@trbs.net>

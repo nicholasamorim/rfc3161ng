@@ -1,10 +1,10 @@
 import hashlib
-import requests
 import base64
 import re
 import datetime
 import dateutil.relativedelta
 import dateutil.tz
+import logging
 
 from pyasn1.codec.der import encoder, decoder
 from pyasn1_modules import rfc2459
@@ -15,7 +15,11 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import hashes
 
-import rfc3161ng
+import rfc3161ng_async
+rfc3161ng = rfc3161ng_async
+
+HTTP_CLIENT = None
+
 
 __all__ = (
     'RemoteTimestamper', 'check_timestamp', 'get_hash_oid',
@@ -209,6 +213,20 @@ class RemoteTimestamper(object):
         self.timeout = timeout
         self.tsa_policy_id = tsa_policy_id
 
+        if not HTTP_CLIENT:
+            raise RuntimeError(
+                'rfc3161ng must have HTTP_CLIENT set to "tornado" or "aiohttp"')
+
+        if HTTP_CLIENT == 'tornado':
+            logging.debug('Using tornado client')
+            from .http_tornado import run_request, HTTP_EXCEPTIONS
+        elif HTTP_CLIENT == 'aiohttp':
+            logging.debug('Using aiohttp client')
+            from .http_aiohttp import run_request, HTTP_EXCEPTIONS
+
+        self.run_request = run_request
+        self.HTTP_EXCEPTIONS = HTTP_EXCEPTIONS
+
     def check_response(self, response, digest, nonce=None):
         '''
            Check validity of a TimeStampResponse
@@ -235,7 +253,8 @@ class RemoteTimestamper(object):
             tsa_policy_id=tsa_policy_id,
         )
 
-    def __call__(self, data=None, digest=None, include_tsa_certificate=None, nonce=None, return_tsr=False, tsa_policy_id=None):
+    # @gen.coroutine
+    async def __call__(self, data=None, digest=None, include_tsa_certificate=None, nonce=None, return_tsr=False, tsa_policy_id=None):
         if data:
             digest = data_to_digest(data, self.hashname)
 
@@ -257,17 +276,14 @@ class RemoteTimestamper(object):
             if isinstance(base64string, bytes):
                 base64string = base64string.decode()
             headers['Authorization'] = "Basic %s" % base64string
+
         try:
-            response = requests.post(
-                self.url,
-                data=binary_request,
-                timeout=self.timeout,
-                headers=headers,
-            )
-            response.raise_for_status()
-        except requests.RequestException as exc:
+            response_content = await self.run_request(
+                self.url, data=binary_request,
+                timeout=self.timeout, headers=headers)
+        except self.HTTP_EXCEPTIONS as exc:
             raise TimestampingError('Unable to send the request to %r' % self.url, exc)
-        tsr = decode_timestamp_response(response.content)
+        tsr = decode_timestamp_response(response_content)
         self.check_response(tsr, digest, nonce=nonce)
         if return_tsr:
             return tsr

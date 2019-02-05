@@ -1,3 +1,5 @@
+import logging
+
 from .types import (
     TimeStampReq, MessageImprint, PKIFreeText, PKIStatus, PKIFailureInfo,
     PKIStatusInfo, TimeStampResp, Accuracy, AnotherName, GeneralName,
@@ -13,6 +15,9 @@ from .api import (
     encode_timestamp_request, encode_timestamp_response,
     decode_timestamp_request, decode_timestamp_response,
 )
+
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 __all__ = (
     'VERSION',
@@ -30,4 +35,4 @@ __all__ = (
     'decode_timestamp_request', 'decode_timestamp_response',
 )
 
-VERSION = '2.1.2-dev'
+VERSION = '3.0-dev'
