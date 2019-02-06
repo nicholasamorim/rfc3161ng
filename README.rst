@@ -43,14 +43,14 @@ publicly available services you can try:
 Example
 =======
 
-    >>> import rfc3161ng
-    >>> rfc3161.api.HTTP_CLIENT = 'tornado'
+    >>> import rfc3161ng_async
+    >>> rfc3161_async.api.HTTP_CLIENT = 'tornado'
     >>> certificate = open('data/certum_certificate.crt', 'rb').read()
-    >>> rt = yield rfc3161ng.RemoteTimestamper('http://time.certum.pl', certificate=certificate)
+    >>> rt = yield rfc3161ng_async.RemoteTimestamper('http://time.certum.pl', certificate=certificate)
     >>> tst = rt.timestamp(data=b'John Doe')
     >>> rt.check(tst, data=b'John Doe')
     True
-    >>> rfc3161ng.get_timestamp(tst)
+    >>> rfc3161ng_async.get_timestamp(tst)
     datetime.datetime(2017, 8, 31, 15, 42, 58, tzinfo=tzutc())
 
 
@@ -65,9 +65,9 @@ For example with:
 To save the tsr you can use code similar to:
 
     >>> from pyasn1.codec.der import encoder
-    >>> import rfc3161ng
+    >>> import rfc3161ng_async
     >>> ...
-    >>> timestamper = yield rfc3161ng.RemoteTimestamper('http://freetsa.org/tsr', certificate=certificate_data)
+    >>> timestamper = yield rfc3161ng_async.RemoteTimestamper('http://freetsa.org/tsr', certificate=certificate_data)
     >>> tsr = timestamper(data=data_file.read(), return_tsr=True)
     >>> with open("data_file.tsr", "wb") as f:
     >>>     f.write(encoder.encode(tsr))
